@@ -1,19 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css']
 })
+
 export class UploadComponent implements OnInit {
   uploadForm: FormGroup;
-  SERVER_URL = "http://localhost:8080";
+  VIMEO_API = "https://api.vimeo.com/me/videos";
   fileToUpload: File;
+  name: string;
+  response: any;
+  form2: any;
+  redirect: string = "http://localhost:4200/redirect?video_uri=value";
 
   constructor(private _formBuilder: FormBuilder,
-    private httpClient: HttpClient,) { }
+    private httpClient: HttpClient,
+    private _sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
     this.uploadForm = this._formBuilder.group({
@@ -23,18 +30,31 @@ export class UploadComponent implements OnInit {
   }
 
   uploadFile() {
-    const formData = new FormData();
-    formData.append('file', this.uploadForm.get('video').value);
-    formData.append('name', this.uploadForm.get('name').value);
-    console.log(this.uploadForm.get('video').value);
-    this.httpClient.post<any>(this.SERVER_URL, formData).subscribe(
+    //set headers
+    const token = "7fcf285dad8d8a1e56914edd362df3a2";
+    const headers = new HttpHeaders({'Authorization':`bearer ${token}`,
+    'Accept':'application/vnd.vimeo.*+json;version=3.4',
+    'Content-Type': 'application/json'});
+    let options = {headers};
+    //set body
+    let size = this.fileToUpload.size;
+    const data = {
+      "upload": {
+        "approach": "post",
+        "size": `${size}`,
+        "redirect_url": `${this.redirect}`
+      }
+    }    
+    console.log(data);
+    //formData.append('file', this.uploadForm.get('video').value);
+    //formData.append('name', this.uploadForm.get('name').value);
+    
+    this.httpClient.post<any>(this.VIMEO_API, data, options).subscribe(
       (res) => {
-        if (res.resultado == "OK") {
-          console.log("Archivo Subido");
-        }
-        else {
-          console.log(res);
-        }
+          console.log(res.upload.form);
+          this.response = res;
+          this.form2 = this._sanitizer.bypassSecurityTrustHtml(res.upload.form);
+        
       },
       (err) => console.log(err)
     );
@@ -45,7 +65,7 @@ export class UploadComponent implements OnInit {
 
       this.fileToUpload = event.target.files[0];
       this.uploadForm.get('video').setValue(this.fileToUpload);
-
+      this.name = this.uploadForm.get('name').value;
       // file reader
       var reader = new FileReader();
       reader.readAsDataURL(event.target.files[0]);
