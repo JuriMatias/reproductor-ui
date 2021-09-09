@@ -9,13 +9,15 @@ import { ReproductorComponent } from './reproductor/reproductor.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UploadComponent } from './upload/upload.component';
 import { RedirectComponent } from './redirect/redirect.component';
+import { FoldersComponent } from './folders/folders.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ReproductorComponent,
     UploadComponent,
-    RedirectComponent
+    RedirectComponent,
+    FoldersComponent
   ],
   imports: [
     BrowserModule,

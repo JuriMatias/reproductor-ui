@@ -38,22 +38,23 @@ export class UploadComponent implements OnInit {
     let options = {headers};
     //set body
     let size = this.fileToUpload.size;
+
     const data = {
       "upload": {
         "approach": "post",
         "size": `${size}`,
         "redirect_url": `${this.redirect}`
-      }
+      },
+      "name": this.name.replace(/\.[^/.]+$/, "")
     }    
     console.log(data);
-    //formData.append('file', this.uploadForm.get('video').value);
-    //formData.append('name', this.uploadForm.get('name').value);
     
     this.httpClient.post<any>(this.VIMEO_API, data, options).subscribe(
       (res) => {
           console.log(res.upload.form);
           this.response = res;
           this.form2 = this._sanitizer.bypassSecurityTrustHtml(res.upload.form);
+          console.log(this.form2);
         
       },
       (err) => console.log(err)
@@ -64,8 +65,10 @@ export class UploadComponent implements OnInit {
     if (event.target.files && event.target.files[0]) {
 
       this.fileToUpload = event.target.files[0];
+      this.name = this.fileToUpload.name;
+      console.log(this.fileToUpload.name);
       this.uploadForm.get('video').setValue(this.fileToUpload);
-      this.name = this.uploadForm.get('name').value;
+      //this.name = this.uploadForm.get('name').value;
       // file reader
       var reader = new FileReader();
       reader.readAsDataURL(event.target.files[0]);

@@ -3,7 +3,6 @@
     <form *ngIf="!response" [formGroup]="uploadForm" (ngSubmit)="uploadFile()" method="POST"
         enctype="multipart/form-data">
         <div>
-            <input type="text" name="name" placeholder="Name" id="name">
             <input type="file" name="video" (change)="onSelectFiles($event)" />
         </div>
         <div style="margin: 10px">
@@ -13,6 +12,5 @@
     </form>
 
     <div *ngIf="response" [innerHTML]="form2">
-
     </div>
 </div>
